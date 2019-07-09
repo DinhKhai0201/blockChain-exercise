@@ -1,5 +1,5 @@
 pragma solidity >=0.4.22 <0.6.0;
-
+//0x5b84b904c4326c330887262b8e9786d79cfc7bbd
 contract StandardToken {
     function transfer(address _to, uint256 _value) public returns (bool success) {
         if (balances[msg.sender] >= _value && _value > 0) {
@@ -42,8 +42,8 @@ contract Khai  is StandardToken {
     address public fundsWallet;   
     
     constructor () public {
-        balances[msg.sender] = 1000000000000000000000;              
-        totalSupply = 1000000000000000000000;                     
+        balances[msg.sender] = 1000*10**18;              
+        totalSupply = 1000*10**18;                     
         name = "Khai";                                  
         decimals = 18;                                             
         symbol = "khaiTC";                                           
