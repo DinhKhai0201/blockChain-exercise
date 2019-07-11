@@ -1,6 +1,5 @@
-//0x5b84b904c4326c330887262b8e9786d79cfc7bbd
 pragma solidity >=0.4.22 <0.6.0;
-//0x269fa5d4380dc63eb9954b19c4b1c168d6ef1de7
+//0xb96601336791f506c23b90e73086d57b85e6f52f
 contract KhaiToken {
     string public name;
     string public symbol;
@@ -9,25 +8,25 @@ contract KhaiToken {
     mapping (address => uint) public balanceOf;
     mapping (address => mapping (address => uint)) public allowance;
     
-    function _transfer(address _from, address _to, uint _value) internal {
+    function transfer(address _to, uint _value) public returns (bool success) {
+        require(_value > 0);
+        require(_to != address(0x0));
+        require(balanceOf[msg.sender] >= _value);
+        require(balanceOf[_to] + _value >= balanceOf[_to]);
+        uint previousBalances = balanceOf[msg.sender] + balanceOf[_to];
+        balanceOf[msg.sender] -= _value;
+        balanceOf[_to] += _value;
+        assert(balanceOf[msg.sender] + balanceOf[_to] == previousBalances);
+        return true;
+    }
+    function transferFrom(address _from, address _to, uint _value) public  returns (bool success) {
         require(_value > 0);
         require(_to != address(0x0));
         require(balanceOf[_from] >= _value);
         require(balanceOf[_to] + _value >= balanceOf[_to]);
-        uint previousBalances = balanceOf[_from] + balanceOf[_to];
         balanceOf[_from] -= _value;
-        balanceOf[_to] += _value;
-        assert(balanceOf[_from] + balanceOf[_to] == previousBalances);
-    }
-    
-    function transfer(address _to, uint _value) public returns (bool success) {
-        _transfer(msg.sender, _to, _value);
-        return true;
-    }
-    function transferFrom(address _from, address _to, uint _value) public returns (bool success) {
-        require(allowance[_from][msg.sender] >= _value);
-       _transfer(_from, _to, _value);
         allowance[_from][msg.sender] -= _value;
+        balanceOf[_to] += _value;
         return true;
     }
     
