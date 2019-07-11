@@ -1,58 +1,64 @@
-pragma solidity >=0.4.22 <0.6.0;
 //0x5b84b904c4326c330887262b8e9786d79cfc7bbd
-contract StandardToken {
-    function transfer(address _to, uint256 _value) public returns (bool success) {
-        if (balances[msg.sender] >= _value && _value > 0) {
-            balances[msg.sender] -= _value;
-            balances[_to] += _value;
-            return true;
-        } else { return false; }
+pragma solidity >=0.4.22 <0.6.0;
+//0x269fa5d4380dc63eb9954b19c4b1c168d6ef1de7
+contract KhaiToken {
+    string public name;
+    string public symbol;
+    uint8 public decimals;
+    
+    mapping (address => uint) public balanceOf;
+    mapping (address => mapping (address => uint)) public allowance;
+    
+    function _transfer(address _from, address _to, uint _value) internal {
+        require(_value > 0);
+        require(_to != address(0x0));
+        require(balanceOf[_from] >= _value);
+        require(balanceOf[_to] + _value >= balanceOf[_to]);
+        uint previousBalances = balanceOf[_from] + balanceOf[_to];
+        balanceOf[_from] -= _value;
+        balanceOf[_to] += _value;
+        assert(balanceOf[_from] + balanceOf[_to] == previousBalances);
     }
-    function transferFrom(address _from, address _to, uint256 _value) public  returns (bool success) {
-        if (balances[_from] >= _value && allowed[_from][msg.sender] >= _value && _value > 0) {
-            balances[_to] += _value;
-            balances[_from] -= _value;
-            allowed[_from][msg.sender] -= _value;
-            return true;
-        } else { return false; }
-    }
-
-    function balanceOf(address _owner) public constant returns (uint256 balance) {
-        return balances[_owner];
-    }
-    function approve(address _spender, uint256 _value) public  returns (bool success) {
-        allowed[msg.sender][_spender] = _value;
+    
+    function transfer(address _to, uint _value) public returns (bool success) {
+        _transfer(msg.sender, _to, _value);
         return true;
     }
-    function allowance(address _owner, address _spender) public constant returns (uint256 remaining) {
-      return allowed[_owner][_spender];
+    function transferFrom(address _from, address _to, uint _value) public returns (bool success) {
+        require(allowance[_from][msg.sender] >= _value);
+       _transfer(_from, _to, _value);
+        allowance[_from][msg.sender] -= _value;
+        return true;
     }
-    mapping (address => uint256) balances;
-    mapping (address => mapping (address => uint256)) allowed;
-    uint256 public totalSupply;
-}
-
-contract Khai  is StandardToken { 
-    string public name;                  
-    uint8 public decimals;               
-    string public symbol;                
-    string public version = 'v1.0';
-    uint256 public unitsOneEthCanBuy;     
-    uint256 public totalEthInWei;        
-    address public fundsWallet;   
     
-    constructor () public {
-        balances[msg.sender] = 1000*10**18;              
-        totalSupply = 1000*10**18;                     
-        name = "Khai";                                  
-        decimals = 18;                                             
-        symbol = "khaiTC";                                           
-        unitsOneEthCanBuy = 10;                                   
-        fundsWallet = msg.sender;                                 
+    function balanceOf(address _owner) public constant returns (uint balance) {
+        return balanceOf[_owner];
     }
+    
+     function approve(address _spender, uint _value) public
+        returns (bool success) {
+        allowance[msg.sender][_spender] = _value;
+        return true;
+    }
+}
+contract Khai is KhaiToken {
+    uint public totalSupply;
+    address public fundsWallet; 
+    uint public initialSupply;
+    
+    constructor() public {
+        name = "Khai";                            
+        decimals = 18;                                             
+        symbol = "K"; 
+        initialSupply = 1000; 
+        fundsWallet = msg.sender;
+        totalSupply = initialSupply * 10 ** uint(decimals); 
+        balanceOf[msg.sender] = totalSupply;                
+    }
+    
     function increase() public  {
         require(msg.sender==fundsWallet);
-        balances[msg.sender] = balances[msg.sender]+totalSupply*10/100;
+        balanceOf[msg.sender] = balanceOf[msg.sender]+totalSupply*10/100;
         totalSupply = totalSupply +totalSupply*10/100;
     }
 }
