@@ -1,5 +1,7 @@
 pragma solidity >=0.4.22 <0.6.0;
-//0xb96601336791f506c23b90e73086d57b85e6f52f
+//0x15b6eed1c59f30aa6061ea5955c9dcb025906a38
+// new 0x0b2b4fa3725a8a89db7bbeefb9a7d96dfa541917
+//https://ethereum.stackexchange.com/questions/50239/where-is-the-approve-and-transferfrom-used?rq=1
 contract KhaiToken {
     string public name;
     string public symbol;
@@ -8,25 +10,24 @@ contract KhaiToken {
     mapping (address => uint) public balanceOf;
     mapping (address => mapping (address => uint)) public allowance;
     
-    function transfer(address _to, uint _value) public returns (bool success) {
-        require(_value > 0);
-        require(_to != address(0x0));
-        require(balanceOf[msg.sender] >= _value);
-        require(balanceOf[_to] + _value >= balanceOf[_to]);
-        uint previousBalances = balanceOf[msg.sender] + balanceOf[_to];
-        balanceOf[msg.sender] -= _value;
-        balanceOf[_to] += _value;
-        assert(balanceOf[msg.sender] + balanceOf[_to] == previousBalances);
-        return true;
-    }
-    function transferFrom(address _from, address _to, uint _value) public  returns (bool success) {
-        require(_value > 0);
+    function _transfer(address _from, address _to, uint _value) internal {
         require(_to != address(0x0));
         require(balanceOf[_from] >= _value);
         require(balanceOf[_to] + _value >= balanceOf[_to]);
+        uint previousBalances = balanceOf[_from] + balanceOf[_to];
         balanceOf[_from] -= _value;
-        allowance[_from][msg.sender] -= _value;
         balanceOf[_to] += _value;
+        assert(balanceOf[_from] + balanceOf[_to] == previousBalances);
+    }
+    
+    function transfer(address _to, uint _value) public returns (bool success) {
+         _transfer(msg.sender, _to, _value);
+        return true;
+    }
+    function transferFrom(address _from, address _to, uint _value) public  returns (bool success) {
+        require(_value <= allowance[_from][msg.sender]);     
+        allowance[_from][msg.sender] -= _value;
+        _transfer(_from, _to, _value);
         return true;
     }
     
@@ -39,6 +40,7 @@ contract KhaiToken {
         allowance[msg.sender][_spender] = _value;
         return true;
     }
+    
 }
 contract Khai is KhaiToken {
     uint public totalSupply;
@@ -59,5 +61,19 @@ contract Khai is KhaiToken {
         require(msg.sender==fundsWallet);
         balanceOf[msg.sender] = balanceOf[msg.sender]+totalSupply*10/100;
         totalSupply = totalSupply +totalSupply*10/100;
+    }
+    function burn(uint256 _value) public returns (bool success) {
+        require(balanceOf[msg.sender] >= _value);   
+        balanceOf[msg.sender] -= _value;           
+        totalSupply -= _value;                     
+        return true;
+    }
+    function burnFrom(address _from, uint256 _value) public returns (bool success) {
+        require(balanceOf[_from] >= _value);              
+        require(_value <= allowance[_from][msg.sender]);   
+        balanceOf[_from] -= _value;                        
+        allowance[_from][msg.sender] -= _value;            
+        totalSupply -= _value;                            
+        return true;
     }
 }
