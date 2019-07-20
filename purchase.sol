@@ -1,7 +1,7 @@
 pragma solidity >=0.4.22 <0.6.0;
 // 0x27720d47eef00b750b2a735a6e9f4b0f97927eb5
 
-import "./coin-erc20.sol";
+import "./erc_token_v2.sol";
 contract Purchase is Khai{
     string public contractName = "Mua bán các loại mặc hàng mà bạn yêu thích .";
     
