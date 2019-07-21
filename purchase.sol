@@ -1,6 +1,5 @@
 pragma solidity >=0.4.22 <0.6.0;
-// 0x27720d47eef00b750b2a735a6e9f4b0f97927eb5
-
+//0x5b9ed839deb7ccf0547f92fd9f130cb8efdb5983
 import "./erc_token_v2.sol";
 contract Purchase is Khai{
     string public contractName = "Mua bán các loại mặc hàng mà bạn yêu thích .";
@@ -89,7 +88,7 @@ contract Purchase is Khai{
         state = State.buyerSendOrder;
     }
     function sellerAccept(uint _idOrder, bool _accept)  public {
-        Orders storage _order = orders[_idOrder];
+        Orders storage _order = orders[_idOrder - 1 ];
         Goods storage _good = goodss[_order.goodId - 1];
         require(state == State.buyerSendOrder);
         require(_good.owner == msg.sender);
@@ -105,17 +104,17 @@ contract Purchase is Khai{
         }
     }
     function Completed(uint _idOrder,bool _accept) payable public{
-        Orders storage _order = orders[_idOrder];
+        Orders storage _order = orders[_idOrder - 1];
         require(state == State.sellerAccept);
         require(_order.buyer == msg.sender);
-        Goods storage _good = goodss[_order.goodId-1];
+        Goods storage _good = goodss[_order.goodId - 1];
         if(_accept){
             _good.owner.transfer(_order.priceEth*90/100);
             balanceOf[_good.owner] = balanceOf[_good.owner] + _order.priceErc*90/100;
             fundsWallet.transfer(_order.priceEth *10/100);
             balanceOf[fundsWallet] = balanceOf[fundsWallet] + _order.priceErc*10/100;
             goodss[_good.id - 1].owner = msg.sender;
-            orders[_idOrder].status = true;
+            orders[_idOrder - 1].status = true;
             
         }
         else{
