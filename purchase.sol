@@ -1,131 +1,255 @@
 pragma solidity >=0.4.22 <0.6.0;
-//0x5b9ed839deb7ccf0547f92fd9f130cb8efdb5983
-import "./erc_token_v2.sol";
-contract Purchase is Khai{
-    string public contractName = "Mua bán các loại mặc hàng mà bạn yêu thích .";
+
+import "./coin-erc20.sol";
+contract Purchase is ErcToken{
     
+    //struct of good
+    using SafeMath for uint;
+    address payable public ownerToten;
 	struct Goods {
-	    uint id;
-        address owner;
+	    uint id; 
+        address payable owner;
         string nameGoods;
-        uint price;
-        bool status;
+        uint price; //in wei or token
+        bool status; //true is not  bought yet, false is bought 
     }
     struct Orders {
         uint orderId;
         uint goodId;
-        address buyer;
+        address payable buyer;
         uint priceErc;
         uint priceEth;
-        bool status;
+        State state;  //a logic state
     }
-    Goods[] public goodss;
-    Orders[] public orders;
+    
+    Goods[] public goods;  // a mapping struct of goods 
+    Orders[] public orders;   //a mapping struct of orders
+    
     mapping (address => bool) public users;
     mapping(address => Goods[]) public goodsAdr;
-    enum State {
-        newOrder,
-        buyerSendOrder,
-        sellerAccept,
-        completed
-    } 
-    State public state;
     
-    constructor () public payable {
-
+    // 4 state for buy and sell good
+    enum State {
+        noOrder, 
+        buyerSendOrder,
+        sellerAcceptOrder,
+        completedOrder
+    } 
+    
+    event RegisterUser(address _user, bool _check);
+    event AddGoods(address _user);
+    event UpdateGoods(address _user, uint _idGoods);
+    event BuyerSendOrder(address _buyer, uint _idGoods, uint _priceEth, uint _priceErc);
+    event SellerAcceptOrder(address _seller, bool _accept, uint _idOder);
+    event CompletedOrder(address _buyer, bool _accept, uint _idOder);
+    
+    constructor () public  {
+        ownerToten = msg.sender;
     }
-
-    function setExist() view  public returns(bool) { 
+    
+    // function check user register or not yet
+    function checkRegister() 
+        view  
+        public 
+        returns(bool) 
+    { 
         if (users[msg.sender]) {
              return true;
         } else {
             return false;
         }
     }
-    function Login() public returns(bool) {
-        require(setExist() == false,"You are login");
+    
+    // function user register
+    function registerUser() 
+        public  
+    {
+        require(checkRegister() == false,"You are register");
         users[msg.sender] = true;
+        emit RegisterUser(msg.sender, true);
     }
-    function sumOwnerGoods() view public returns (uint) {
-        return goodsAdr[msg.sender].length;
+    
+    /*function return sum of goods of user
+    *@param _user is address of user you want to see sum goods of that address
+    */ 
+    function sumUserGoods(address _user) 
+        view 
+        public 
+        returns (uint) 
+    {
+        return goodsAdr[_user].length;
     } 
-    function DetailGood( uint _id) view public returns (uint, address, string, uint, bool) {
-        
-        return (_id, goodss[_id -1 ].owner, goodss[_id -1 ].nameGoods, goodss[_id - 1 ].price, goodss[_id -1 ].status);
-        
+    
+    /*function return detail of the goods
+    *@param _id is id of goods you want to detal of goods
+    */
+    function detailGood( uint _id) 
+        view 
+        public 
+        returns (uint, address, string memory, uint, bool) 
+    {
+        Goods memory _good = goods[_id - 1];
+        return (_id, _good.owner,  _good.nameGoods, _good.price, _good.status);
     } 
+    
+    /*function add good
+    *@param _nameGood is name of goods user want to set
+    *@param _price is is price of goods user want to set
+    */ 
     function addGoods (
     	string memory _nameGood,
     	uint _price
     )
-    public 
-    returns (bool success)
+        public 
     {
-        require(users[msg.sender] == true,"you are not login");
-        goodss.push(Goods(goodss.length + 1, msg.sender, _nameGood,_price, true ));
-        goodsAdr[msg.sender].push(Goods(goodss.length + 1, msg.sender, _nameGood, _price,true ));
-        return true;
+        require(users[msg.sender] == true, "you must register");
+        goods.push(Goods(goods.length + 1, msg.sender, _nameGood, _price, true ));
+        goodsAdr[msg.sender].push(Goods(goods.length + 1, msg.sender, _nameGood, _price, true ));
+        emit AddGoods(msg.sender);
     }
-    function updateGoods(uint _id, string memory _nameGood,uint _price, bool _status) public{
-        require(goodss[_id - 1].owner == msg.sender);
-        goodss[_id - 1].nameGoods =_nameGood;
-        goodss[_id - 1].price =_price;
-        goodss[_id - 1].status =_status;
+    
+    /*function update good
+    *@param _id is id of goods user want to update
+    *@param _nameGood is new name
+    *@param _price is new price
+    *@param _status is new status (true have not  bought yet, false was bought )
+    */
+    function updateGoods(
+        uint _id, 
+        string memory _nameGood,
+        uint _price, 
+        bool _status
+    ) 
+        public
+    {
+        Goods storage _good = goods[_id - 1];
+        require(_good.owner == msg.sender);
+        _good.nameGoods =_nameGood;
+        _good.price =_price;
+        _good.status =_status;
+        emit UpdateGoods(msg.sender, _id);
     }
-     function sumOfGoods() view public returns(uint) {
-        return goodss.length;
+    
+    //function return sum all of goods
+    function sumOfGoods() 
+        view 
+        public 
+        returns(uint) 
+    {
+        return goods.length;
     }
-
-    function buyerSendOrder(uint _id ,uint Khai) payable public {
-        require(goodss[_id - 1].status);
-        require(msg.sender != goodss[_id - 1].owner);
-        require(Khai <= balanceOf[msg.sender]);
-        uint _price = goodss[_id - 1].price;
-        require(_price == (msg.value + Khai));
-        balanceOf[msg.sender] = balanceOf[msg.sender] - Khai;
-        orders.push(Orders(orders.length + 1, _id, msg.sender, Khai, msg.value,false));
-        goodss[_id - 1].status = false;
-        state = State.buyerSendOrder;
+    
+    /*step 1 buyer send a order with price is erc token 20
+    *@param _id is id of goods buyer want to buy
+    *@param _ercCoin is amount token to buy goods
+    */ 
+    function buyerSendOrderErc(
+        uint _id,
+        uint _ercCoin
+    ) 
+        payable 
+        public 
+    {
+        Goods storage _good = goods[_id - 1];
+        require(_good.status);
+        require(msg.sender != _good.owner);
+        require(_ercCoin <= balanceOf[msg.sender]);
+        require(_good.price ==  _ercCoin);
+        require(msg.value ==  0);
+        balanceOf[msg.sender] = balanceOf[msg.sender] - _ercCoin;
+        orders.push(Orders(orders.length + 1, _id, msg.sender, _ercCoin, msg.value, State.buyerSendOrder));
+        _good.status = false;
+        emit BuyerSendOrder(msg.sender, _id, 0, _ercCoin);
     }
-    function sellerAccept(uint _idOrder, bool _accept)  public {
+    
+    /* or  step 1 buyer send a order with price is ether
+    *@param _id is id of goods buyer want to buy
+    *@param _amount is amount ether to buy goods
+    */
+    function buyerSendOrderEth(
+        uint _id,
+        uint _amount
+    ) 
+        payable 
+        public 
+    {
+        Goods storage _good = goods[_id - 1];
+        require(_good.status);
+        require(msg.sender != _good.owner);
+        require(_amount == msg.value);
+        require(_good.price == (msg.value));
+        orders.push(Orders(orders.length + 1, _id, msg.sender, 0, msg.value, State.buyerSendOrder));
+        _good.status = false;
+        emit BuyerSendOrder(msg.sender, _id, msg.value, 0);
+    }
+    
+    /* step 2 : seller accep order or not 
+    *@param _idOrder is id of order seller want to handle
+    *@param _accept is seller want to accept or not
+    */
+    function sellerAcceptOrder(
+        uint _idOrder,
+        bool _accept
+    ) 
+        public 
+    {
         Orders storage _order = orders[_idOrder - 1 ];
-        Goods storage _good = goodss[_order.goodId - 1];
-        require(state == State.buyerSendOrder);
+        Goods storage _good = goods[_order.goodId - 1];
+        require(_order.state == State.buyerSendOrder);
         require(_good.owner == msg.sender);
         if(!_accept){
             _order.buyer.transfer(_order.priceEth);
-            balanceOf[_order.buyer] = balanceOf[_order.buyer] + _order.priceErc;
-            state = State.completed;  
-            goodss[_good.id - 1].status = true;
-            
+            balanceOf[_order.buyer] = balanceOf[_order.buyer].add(_order.priceErc);
+            _order.state = State.noOrder;  
+            _good.status = true;
+            emit SellerAcceptOrder(msg.sender, false, _idOrder);
         }
         else{
-            state = State.sellerAccept;  
+            _order.state = State.sellerAcceptOrder;  
+            emit SellerAcceptOrder(msg.sender, true, _idOrder);
         }
-    }
-    function Completed(uint _idOrder,bool _accept) payable public{
-        Orders storage _order = orders[_idOrder - 1];
-        require(state == State.sellerAccept);
-        require(_order.buyer == msg.sender);
-        Goods storage _good = goodss[_order.goodId - 1];
-        if(_accept){
-            _good.owner.transfer(_order.priceEth*90/100);
-            balanceOf[_good.owner] = balanceOf[_good.owner] + _order.priceErc*90/100;
-            fundsWallet.transfer(_order.priceEth *10/100);
-            balanceOf[fundsWallet] = balanceOf[fundsWallet] + _order.priceErc*10/100;
-            goodss[_good.id - 1].owner = msg.sender;
-            orders[_idOrder - 1].status = true;
-            
-        }
-        else{
-            _good.owner.transfer(_order.priceEth *10/100);
-            balanceOf[_good.owner] = balanceOf[_good.owner] + _order.priceErc*10/100;
-             _order.buyer.transfer(_order.priceEth *80/100);
-            balanceOf[_order.buyer] = balanceOf[_order.buyer] + _order.priceErc*80/100;
-            fundsWallet.transfer(_order.priceEth *10/100);
-            balanceOf[fundsWallet] = balanceOf[fundsWallet] + _order.priceErc*10/100;
-        }
-        state = State.completed;
     }
     
+    /* step 3 : buyer accep receive  or not
+    *@param _idOrder is id of order buyer want to handle
+    *@param _accept is buyer  accept or not
+    */
+    function completedOrder(
+        uint _idOrder,
+        bool _accept
+    ) 
+        public
+    {
+        Orders storage _order = orders[_idOrder - 1];
+        Goods storage _good = goods[_order.goodId - 1];
+        require(_order.state == State.sellerAcceptOrder);
+        require(_order.buyer == msg.sender);
+        if(_accept){
+            /* when buyer accept , 90% of price will transfer to seller,
+            *  10% of price will be transfer to contract creator
+            */
+            _good.owner.transfer(_order.priceEth*90/100);
+            balanceOf[_good.owner] = balanceOf[_good.owner].add(_order.priceErc*90/100);
+            ownerToten.transfer(_order.priceEth *10/100);
+            balanceOf[ownerToten] = balanceOf[ownerToten].add(_order.priceErc*10/100);
+            _good.owner = msg.sender;
+            _order.state = State.completedOrder;
+            emit CompletedOrder(msg.sender, true, _idOrder);
+        }
+        else {
+            /* when buyer don't accept , 80% of price will transfer to buyer,
+            *  10% of price will be transfer to contract creator
+            *  10% of price will be transfer to seller
+            */
+            _good.owner.transfer(_order.priceEth *10/100);
+            balanceOf[_good.owner] = balanceOf[_good.owner].add(_order.priceErc*10/100);
+             _order.buyer.transfer(_order.priceEth *80/100);
+            balanceOf[_order.buyer] = balanceOf[_order.buyer].add(_order.priceErc*80/100);
+            ownerToten.transfer(_order.priceEth *10/100);
+            balanceOf[ownerToten] = balanceOf[ownerToten].add(_order.priceErc*10/100);
+            _order.state = State.noOrder;  
+            _good.status = true;
+            emit CompletedOrder(msg.sender, false, _idOrder);
+        }
+    }
 }
