@@ -1,0 +1,14 @@
+.buy {
+	cursor: pointer;
+	padding :2px 5px;
+	color: white;
+}
+.buyEther {
+	background-color: green;
+}
+.buyErc {
+	background-color: blue;
+}
+.align-text{
+	text-align: left!important;
+}

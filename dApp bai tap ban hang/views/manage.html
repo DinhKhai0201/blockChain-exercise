@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+
+<html lang="en">
+<head>
+  <meta name="generator" content="HTML Tidy for HTML5 (experimental) for Windows https://github.com/w3c/tidy-html5/tree/c63cc39">
+  <meta charset="UTF-8">
+
+  <title>Contract Administration</title>
+  <script src="//ajax.googleapis.com/ajax/libs/angularjs/1.3.3/angular.min.js">
+</script>
+  <script src="//cdnjs.cloudflare.com/ajax/libs/angular.js/1.3.3/angular-route.min.js">
+</script>
+  <script src="//ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js">
+</script><!--Import Google Icon Font-->
+  <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet"><!-- Compiled and minified CSS -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/0.100.2/css/materialize.min.css">
+  <link rel="stylesheet" href="main.css">
+  <!-- Compiled and minified JavaScript -->
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/0.100.2/js/materialize.min.js"></script>
+  <script src="script.js"></script>
+  
+</head>
+
+<body class="admingradientbackground admin">
+  <div class="container contract">
+    <div class="row">
+      <div class="col s12 shadow admingradient1 blue-grey-text text-accent-2">
+      
+        
+		<div class="row dark">
+        <div class="col s5 offset-s1">			
+			<a href="/" class="brand-logo">Home</a>
+		</div>
+		<div class="col s5 right-align">			
+			<a href="/" class="red-text text-lighten-4"><i class="material-icons">arrow_back</i><i class="material-icons">class</i></a>
+		</div>
+		</div>
+		
+        <div class="row dark">
+          
+		  <div class="col s5 offset-s1">
+		  
+  		    <div class="infolabeldark red-text text-lighten-4">Your public  ID</div>
+            <div class="user chip  red darken-4">
+				<span class="identification">no id</span>
+			</div>
+			<div class="dividerdark"></div>
+            <div class="infolabeldark red-text text-lighten-4">Your tokens</div>
+			<div class="user chip  red darken-4">
+				<i class="material-icons" style="font-size:13px;">group_work</i>
+				<span id="tokenbalance">0</span>
+			</div>
+          </div>
+
+          <div class="col s5 right-align">
+            
+			<div class="infolabeldark red-text text-lighten-4">Ethereum network</div>
+            <div class="user chip white-text red darken-4">
+				<i class="material-icons" style="font-size:13px;">share</i>
+				<span id="network">no network</span>
+			</div>
+			<div class="dividerdark"></div>
+            <div class="infolabeldark red-text text-lighten-4">Last blocks mined
+			
+			</div>
+			<div id="lastblocks-admin">
+				<!--<div class="chip blue-grey-text text-accent-2 red darken-4"></div>-->	
+				 <div class="progress blockprogress red darken-4"><div class="indeterminate red lighten-2"></div></div>
+				
+			</div>
+			
+          </div>
+		  
+        </div>
+		
+      </div>
+
+	  
+	  
+	  
+	  
+      <div class="col s8 shadow grey lighten-3 roundcornerleftbottom">
+        
+		<!-- create new -->
+		<div class="row">
+          <div class="col offset-s1 s10">        
+			<div class="card article white">            
+            <div class="card-content newarticleinputsection">
+			<h5>Create new goods</h5>
+                <div class="row">
+					<div class="input-field col s12">
+						<input type="text" name="" id="newGoodsName" class="materialize-textarea"></input>
+						<label for="newarticletext">New goods name</label>
+					</div>
+					<div class="input-field col s12">
+						<input type="text" name="" id="newPrice" class="materialize-textarea"></input>
+						<label for="newarticletext">New Price(erc equal wei)</label>
+					</div>
+				</div>
+            </div>
+            <div class="card-action">
+              <div class="row">			  
+			  <div class="col s12 right-align">
+			<p id="newGoods" class="waves-effect waves-light btn-large red " href="#"><i class="material-icons right">arrow_forward</i>Add new</p>
+			
+			  </div>			  
+			  </div>			  
+            </div>
+          </div>
+		  		  	
+          </div>
+        </div>
+        <!-- user list goods -->
+		<div class="row white roundcornerleftbottom" style="margin-bottom:10px; padding:30px 0;">
+        	<div class="col offset-s1 s10">          
+				<h5>Your list goods</h5>
+				<br>
+				<div class="row">
+				    <div class="col s12">
+				      <ul class="tabs">
+				        <li class="tab col s6"><a class="active" href="#NewGoods">New Goods</a></li>
+				        <li class="tab col s6"><a  href="#Brought">Buying</a></li>
+				      </ul>
+				    </div>
+				    <div id="NewGoods" class="col s12"></div>
+				    <div id="Brought" class="col s12"></div>
+				  </div>
+				<div class="your-list-goods"></div>
+			</div>
+
+        </div>
+		<!--user list orders-->
+		<div class="row white roundcornerleftbottom" style="margin-bottom:0px; padding:30px 0;">
+           <div class="col offset-s1 s10">        
+				<h5>Your list orders</h5>
+				<br> 
+				  <div class="row">
+				    <div class="col s12">
+				      <ul class="tabs">
+				        <li class="tab col s6"><a class="active" href="#Neworder">New order</a></li>
+				        <li class="tab col s6"><a  href="#Done">Done</a></li>
+				      </ul>
+				    </div>
+				    <div id="Neworder" class="col s12"></div>
+				    <div id="Done" class="col s12"></div>
+				  </div>
+				<div class="your-list-orders"></div>
+		    </div>
+        </div>
+		
+		
+      </div>
+	  
+	  <div class="col s4 shadow grey lighten-4">
+	  	<!--contract info -->
+		<div class="row contractinfo">
+          <div class="col offset-s1 s10 voffset center-align">
+            <div class="card-panel">
+              <div class="infolabelline">
+                <span class="infolabel red-text text-lighten-4">Contract address</span>
+              </div>
+              <div class="contractaddress infoaddressfield red-text text-lighten-1 chip red lighten-5">*</div>
+
+              <div class="infolabelline">
+                <span class="infolabel red-text text-lighten-4">Contract creator</span>
+              </div>
+              <div class="contractcreator infoaddressfield red-text text-lighten-1 chip red lighten-5">*</div>
+			  
+            </div>
+          </div>
+        </div>
+	  
+	  <!-- existing articles -->
+		   <div class="row">
+          <div class="col offset-s1 s10" id="articlelist">         	
+			
+          </div>
+        </div>
+	  
+	  </div>
+	  
+	  
+    </div>
+  </div><!-- modals -->
+  <!-- Modal Structure -->
+
+  <div id="modal1" class="modal modal-fixed-footer">
+    <div class="modal-content">
+      <h4>Transaction details</h4>
+	  
+	  <ul class="collection">      
+        <li class="collection-item"><div>Your Admin ID<span href="#!" class="secondary-content"><div class="identification">*</div></span></div></li>
+		
+		<li class="collection-item"><div>Contract name<span href="#!" class="secondary-content"><div class="contractname">*</div></span></div></li>
+		
+		<li class="collection-item"><div>Contract address<span href="#!" class="secondary-content"><div class="contractaddress">*</div></span></div></li>
+		
+		<li class="collection-item"><div>Contract creator<span href="#!" class="secondary-content"><div class="contractcreator">*</div></span></div></li>
+		
+		<li class="collection-item"><div>Transaction id<span class="secondary-content right-align" style="min-width:200px;">
+		<div id="transactionid">
+		<div class="progress">
+			<div class="indeterminate"></div>
+		</div>
+		</div>
+		</span></div></li>
+	   
+      </ul>
+	  
+    </div>
+    <div class="modal-footer">
+      <a href="#!" class="modal-action modal-close waves-effect btn-flat black-text"><i class="material-icons left">close</i> Close</a>
+    </div>
+  </div>
+  
+  <!-- admin credentials? -->
+ 
+  <div id="noRegister" class="modal modal-fixed-footer">
+    <div class="modal-content">
+      <h4>You are not register!!!</h4>
+	  <p class="flow-text">
+	  <br>
+	  <br>
+	  Open Metamask plugin and select user wallet account that has register in order to continue and manage user token balances, add new goods and view your good.
+	  </p>
+	 <p id="registerUser" class="marginAutoCenter waves-effect waves-light btn-large green " href="#"><i class="material-icons right">check</i>Register</p>
+  </div>
+    </div>
+
+  
+
+</body>
+</html>
