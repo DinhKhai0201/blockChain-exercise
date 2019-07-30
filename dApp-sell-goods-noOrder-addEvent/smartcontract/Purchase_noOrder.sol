@@ -6,8 +6,8 @@ contract Purchase is ErcToken{
     //struct of good
     using SafeMath for uint;
     address payable public ownerToten;
-    struct Goods {
-        uint id; 
+	struct Goods {
+	    uint id; 
         address payable owner;
         string nameGoods;
         uint priceErc; //in wei 
@@ -28,7 +28,7 @@ contract Purchase is ErcToken{
     } 
     
     event RegisterUser(address indexed _user, bool _check);
-    event AddGoods(address indexed _user, uint _idGoods, string _nameGood);
+    event AddGoods(address indexed _user, uint _idGoods, string _nameGood,  uint _priceEth, uint _priceErc, State state, bool _paytype);
     event UpdateGoods(address indexed _user, uint indexed _idGoods, string _nameGood, uint _priceEth, uint _priceErc, State state);
     event BuyerSendOrder(address indexed _buyer, address indexed _seller,  uint indexed _idGoods, string _nameGood, uint _priceEth, uint _priceErc, State state );
     event SellerAcceptOrder(address indexed _seller, uint indexed _idGoods, string _nameGood);
@@ -77,14 +77,15 @@ contract Purchase is ErcToken{
     *@param _price is is price of goods user want to set
     */ 
     function addGoods (
-        string memory _nameGood,
-        uint _price
+    	string memory _nameGood,
+    	uint _price
     )
         public 
     {
         require(users[msg.sender] == true, "you must register");
         goods.push(Goods(goods.length + 1, msg.sender, _nameGood, _price, _price, State.noOrder ,true));
-        emit AddGoods(msg.sender, goods.length, _nameGood);
+        // ben UI dung de hien thi nhung mac hang ma 1 nguoi nao do da va dang ban, xet status la 4 thi hien thi da ban 
+        emit AddGoods(msg.sender, goods.length, _nameGood,  _price, _price, State.noOrder ,true);
     }
     
     /*function update good
@@ -226,3 +227,4 @@ contract Purchase is ErcToken{
         }
     }
 }
+
