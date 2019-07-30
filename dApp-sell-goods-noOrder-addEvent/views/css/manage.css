@@ -1,0 +1,22 @@
+.state2 {
+	background-color: yellow;
+}
+.state3 {
+	background-color: orange;
+}
+.state4 {
+	background-color: green;
+}
+.edit-goods-card  {
+	position: relative;
+}
+.edit-goods-icon {
+	display: table;
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    cursor: pointer;
+}
+div#Brought .edit-goods-icon {
+	display: none;
+}
