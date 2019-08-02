@@ -78,11 +78,15 @@ $(function() {
     //enabel web
     // configure web3
     var metamask = false;
-    if (typeof web3 !== 'undefined') {
-        web3 = new Web3(web3.currentProvider);
-    } else {
-        web3 = new Web3(new Web3.providers.HttpProvider("https://ropsten.infura.io/v3/cf658270146645bca881f8a7d4752099"));
-    }
+    window.addEventListener('load', async () => {
+	if (typeof web3 !== 'undefined') {
+		await window.ethereum.enable();
+		web3 = new Web3(web3.currentProvider);
+	    } else {
+		web3 = new Web3(new Web3.providers.HttpProvider("https://ropsten.infura.io/v3/cf658270146645bca881f8a7d4752099"));
+	    }
+    })
+    
     web3.version.getNetwork((err, netId) => {
         switch (netId) {
             case "1":
