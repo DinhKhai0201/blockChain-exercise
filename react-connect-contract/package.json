@@ -5,12 +5,14 @@
   "dependencies": {
     "bootstrap": "^4.3.1",
     "bootstrap-theme": "^5.0.0",
+    "fs": "0.0.1-security",
     "ipfs-http-client": "^29.1.1",
     "promise": "^8.0.3",
     "react": "^16.8.6",
     "react-dom": "^16.8.6",
     "react-promise": "^3.0.2",
     "react-scripts": "3.0.1",
+    "truffle-hdwallet-provider": "^1.0.15",
     "web3": "^1.2.0"
   },
   "scripts": {
