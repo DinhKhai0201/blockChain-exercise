@@ -1,7 +1,7 @@
 import web3cur from './web3Service';
 
-const address = '0x9ba0eff6e9c206574c8ca1a9f7292b7bce4fc8ae';
-const abi = [{"constant":true,"inputs":[],"name":"getHash","outputs":[{"name":"x","type":"string"}],"payable":false,"stateMutability":"view","type":"function"},{"constant":true,"inputs":[],"name":"ipfsHash","outputs":[{"name":"","type":"string"}],"payable":false,"stateMutability":"view","type":"function"}]
+const address = '0x2e69521e32669241082a03e2a71a89a8b3f37456';
+const abi = [{"constant":false,"inputs":[{"name":"x","type":"string"}],"name":"sendHash","outputs":[],"payable":false,"stateMutability":"nonpayable","type":"function"},{"constant":true,"inputs":[],"name":"getHash","outputs":[{"name":"x","type":"string"}],"payable":false,"stateMutability":"view","type":"function"},{"constant":true,"inputs":[],"name":"ipfsHash","outputs":[{"name":"","type":"string"}],"payable":false,"stateMutability":"view","type":"function"}]
 
 let getContract = async(cb = ()=>{})=>{
   let web3 = await web3cur();
@@ -52,5 +52,5 @@ getContract();
 //   console.log("getHash: ",result)
 // })
 export {
-  getContract
+  	getContract
 }
